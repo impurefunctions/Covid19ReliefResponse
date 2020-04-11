@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "660573998706",
+    "firebase_url": "https://covid19reliefresponse-25cde.firebaseio.com",
+    "project_id": "covid19reliefresponse-25cde",
+    "storage_bucket": "covid19reliefresponse-25cde.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:660573998706:android:3fd11e4ffafdbbd84cfceb",
+        "android_client_info": {
+          "package_name": "teamwork.covid19reliefresponse"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "660573998706-ll6plihnv7bqasgecb4asgue6vl1oeiq.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "teamwork.covid19reliefresponse",
+            "certificate_hash": "8df1b6db936aee493d3c3277381506c53f42f2e4"
+          }
+        },
+        {
+          "client_id": "660573998706-7curgao7d1q15lfpmvd15jopkt2cnv30.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBOHCLgrpcs3n0feh-6tWx3PnBEDmnxClQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "660573998706-7curgao7d1q15lfpmvd15jopkt2cnv30.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

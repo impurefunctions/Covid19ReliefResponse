@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="200dp"
+    android:layout_margin="8dp"
+    android:background="@drawable/bluish_background">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Semang Mang"
+        android:id="@+id/beneficiary_name"
+        android:layout_marginTop="8dp"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="@color/colorPrimary"
+        />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Serowe sesoma ward"
+
+        android:textSize="18sp"
+        android:id="@+id/location"
+        android:layout_below="@+id/beneficiary_name"
+        android:textStyle="bold"
+        android:textColor="@color/colorPrimary"
+        />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Family: 10"
+        android:layout_marginTop="8dp"
+        android:textSize="16sp"
+        android:layout_alignParentRight="true"
+        android:id="@+id/beneficiaries_number"
+        android:layout_marginRight="5dp"
+        android:textStyle="bold"
+        android:textColor="@color/colorPrimary"
+        />
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/location"
+        android:orientation="vertical"
+        android:layout_marginTop="16dp"
+        android:id="@+id/linear">
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:textSize="16sp"
+
+        android:text="Allergies: 1,Allergies : milk"
+        android:id="@+id/allergies"
+        android:layout_below="@+id/location"
+        android:textStyle="bold"
+        android:textColor="@color/colorPrimary"
+        />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:textSize="16sp"
+        android:text="Babies: 1,Allergies : milk"
+
+        android:id="@+id/infants"
+        android:layout_below="@+id/allergies"
+        android:textStyle="bold"
+        android:textColor="@color/colorPrimary"
+        />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:textSize="16sp"
+            android:text="Last estimated meal: 21/04/20"
+
+            android:id="@+id/last_estimated_meal"
+            android:layout_below="@+id/allergies"
+            android:textStyle="bold"
+            android:textColor="@color/colorPrimary"
+            />
+    </LinearLayout>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/splash_gradient"
+        android:padding="2dp"
+        android:layout_marginBottom="5dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:text="Press and hold to call"
+        android:id="@+id/call"
+        android:textStyle="bold"
+        android:textColor="@color/colorPrimary"
+        />
+</RelativeLayout>

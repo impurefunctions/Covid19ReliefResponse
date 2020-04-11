@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Covid19ReliefResponse</string>
+    <string name="action_settings">Settings</string>
+    <string name="announcement">Announcements</string>
+    <string name="beneficiary_number">Number of people</string>
+    <string name="write_here">Kwala karabo fa</string>
+</resources>
