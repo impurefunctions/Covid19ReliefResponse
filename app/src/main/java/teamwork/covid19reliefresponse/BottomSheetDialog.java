@@ -21,7 +21,7 @@ import com.google.firebase.storage.StorageReference;
 import java.util.ArrayList;
 
 public class BottomSheetDialog extends BottomSheetDialogFragment {
-    private ArrayList<String> strings;
+    private ArrayList<String> hamperQuestions,housingQuestions;
     private int row_index,lastPosition;
     private TextView questionTextView,nextTextView;
     private EditText inputEditText;
@@ -31,21 +31,30 @@ public class BottomSheetDialog extends BottomSheetDialogFragment {
     private FirebaseAuth mAuth;
 
 
-    public ArrayList<String> getStrings() {
+    public ArrayList<String> getHamperQuestions() {
 
         // TODO go through this list and set questions and inputType for the edittext per question
-        strings=new ArrayList<>();
-        strings.add("Maina ka botlalo");
-        strings.add("Le kahe mo lapeng");
-        strings.add("Tsenya nomoro ya Omang ka botlalo");
-        strings.add("Tsenya motse/toropo , kgotla le nomoro ya Jarata");
-        strings.add("A go na le masea mo lapeng, fa a le teng a kafe");
-        strings.add("A go na le dijo dingwe tse di sa jeweng mo lapeng, fa di le teng ke dife?");
-        strings.add("Fa o abelela dijo tse di mo lapeng ka nako e di ka fela leng?");
-        strings.add("Re kopa mogala o re ka go tshwarang mo go one");
-        return strings;
+        hamperQuestions=new ArrayList<>();
+        hamperQuestions.add("Maina ka botlalo");
+        hamperQuestions.add("Le kahe mo lapeng");
+        hamperQuestions.add("Tsenya nomoro ya Omang ka botlalo");
+        hamperQuestions.add("Tsenya motse/toropo , kgotla le nomoro ya Jarata");
+        hamperQuestions.add("A go na le masea mo lapeng, fa a le teng a kafe");
+        hamperQuestions.add("A go na le dijo dingwe tse di sa jeweng mo lapeng, fa di le teng ke dife?");
+        hamperQuestions.add("Fa o abelela dijo tse di mo lapeng ka nako e di ka fela leng?");
+        hamperQuestions.add("Re kopa mogala o re ka go tshwarang mo go one");
+        return hamperQuestions;
     }
-
+    public ArrayList<String> getHousingQuestions() {
+        // TODO go through this list and set questions and inputType for the edittext per question
+        housingQuestions=new ArrayList<>();
+        housingQuestions.add("Maina ka botlalo");
+        housingQuestions.add("Tsenya nomoro ya Omang ka botlalo");
+        housingQuestions.add("Tsenya motse/toropo , kgotla le nomoro ya Jarata");
+        housingQuestions.add("Re kopa mogala o re ka go tshwarang mo go one");
+        housingQuestions.add("Re kopa mogala wa mongwe yo o mo tshephang, yo re ka go tshwarang mo go one");
+        return housingQuestions;
+    }
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
@@ -100,12 +109,12 @@ public class BottomSheetDialog extends BottomSheetDialogFragment {
             case 0:
 
         //begin form with the first question from the food hamper set
-            questionTextView.setText(getStrings().get(0));
+            questionTextView.setText(getHamperQuestions().get(0));
 
                 break;
             case 1:
                 //begin form with the first question from the permit/gbv housing assistence set
-                questionTextView.setText(getStrings().get(0));
+                questionTextView.setText(getHousingQuestions().get(0));
 
 
                 break;
@@ -119,8 +128,8 @@ public class BottomSheetDialog extends BottomSheetDialogFragment {
         switch (lastPosition) {
 
             case 0:
-                if (lastPosition < getStrings().size())
-                    questionTextView.setText(getStrings().get(lastPosition));
+                if (lastPosition < getHamperQuestions().size())
+                    questionTextView.setText(getHamperQuestions().get(lastPosition));
 
                 else
                     //the questionnaire has been completed put the Hamper object together and send it to Firebase
@@ -132,8 +141,8 @@ public class BottomSheetDialog extends BottomSheetDialogFragment {
             case 1:
                //to same for next type of questionnaire
 
-                if (lastPosition < getStrings().size())
-                    questionTextView.setText(getStrings().get(lastPosition));
+                if (lastPosition < getHousingQuestions().size())
+                    questionTextView.setText(getHousingQuestions().get(lastPosition));
                 else
                     //the questionnaire has been completed put the Hamper object together and send it to Firebase
                 //use the  foodHamperRef node

@@ -13,7 +13,7 @@
         android:layout_height="96dp"
         android:id="@+id/image"
      android:layout_centerHorizontal="true"
-        android:src="@drawable/Moon"/>
+        android:src="@drawable/moon"/>
 
 
     <TextView
@@ -48,5 +48,12 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/announcement_recycler"
         android:id="@+id/service_recycler"></androidx.recyclerview.widget.RecyclerView>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/service_recycler"
+        android:visibility="gone"
+        android:id="@+id/requests_recycler"></androidx.recyclerview.widget.RecyclerView>
 
 </RelativeLayout>

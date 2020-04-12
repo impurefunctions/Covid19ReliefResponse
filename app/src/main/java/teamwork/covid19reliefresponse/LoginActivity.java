@@ -1,15 +1,13 @@
 package teamwork.covid19reliefresponse;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
-        import android.support.annotation.NonNull;
-        import android.support.annotation.Nullable;
-        import android.support.design.widget.Snackbar;
-        import android.support.v7.app.AlertDialog;
-        import android.support.v7.app.AppCompatActivity;
+
         import android.os.Bundle;
         import android.text.TextUtils;
         import android.util.Log;
@@ -78,7 +76,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private GoogleSignInClient googleSignInClient;
     private LoginButton fb_sign_btn;
     private CallbackManager callbackManager;
-
+    private SignInButton iv_google;
 
 //TODO implement volunteer login and authentication ideas are welcome. Normal users will use Facebook and Gmail accounts with the code below
 
@@ -202,13 +200,14 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
     private void updateUI(FirebaseUser firebaseUser) {
         //  String email = firebaseUser.getEmail();
-
+/*
         String displayName = firebaseUser.getDisplayName();
         Intent intent = new Intent(context, SignUp.class);    // launch MainActivity  if exist  // hide google sign in button if not
         //intent.putExtra(Constants.KEY_USER_EMAIL, email);
         intent.putExtra(Constants.KEY_USER_DISPLAY_NAME, displayName);
         startActivity(intent);
         finish();
+        */
     }
 
 

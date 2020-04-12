@@ -5,16 +5,22 @@ import android.os.Bundle;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -31,20 +37,23 @@ import java.util.ArrayList;
 import teamwork.covid19reliefresponse.data.RecyclerViewAdapter;
 import teamwork.covid19reliefresponse.model.Announcement;
 import teamwork.covid19reliefresponse.model.HamperRequest;
+import teamwork.covid19reliefresponse.model.HousingRequest;
 
 public class MainActivity extends AppCompatActivity {
 
     private ArrayList<String> strings;
     private BottomSheetDialog bottomSheetDialog1;
     private RecyclerViewAdapter recyclerViewAdapter;
-    private LinearLayoutManager layoutManager, optionslayoutManager;
+    private LinearLayoutManager layoutManager, requestsLayoutManager,servicesLayoutManager ;
     private   FirebaseRecyclerAdapter<Announcement, Viewholder>mAdapter;
     private   FirebaseRecyclerAdapter<HamperRequest, RequestsViewholder>hamperAdapter;
-    private RecyclerView mRecyclerView, mOptionsRecyclerView;
+    private   FirebaseRecyclerAdapter<HousingRequest, HousingViewholder>housingAdapter;
+    private RecyclerView mRecyclerView, requestsRecyclerView,servicesRecyclerView;
     private StorageReference storageRef;
     private DatabaseReference mRootRef;
-    private DatabaseReference foodHamperRef, announcementRef;
+    private DatabaseReference foodHamperRef, announcementRef,housingRef,acceptedHamperRef,acceptedhousingRef,rejectedHamperRef,rejectedhousingRef;
     private Context context;
+    private int swipedPosition;
     private FirebaseAuth mAuth;
 
     public ArrayList<String> getStrings() {
@@ -140,19 +149,32 @@ public class MainActivity extends AppCompatActivity {
         storageRef = FirebaseStorage.getInstance().getReference();
 
         mRootRef = FirebaseDatabase.getInstance().getReference();
+
         foodHamperRef = mRootRef.child("HamperRequests");
+        housingRef = mRootRef.child("HousingRequests");
+
+        rejectedHamperRef = mRootRef.child("RejectedHamperRequests");
+        rejectedhousingRef = mRootRef.child("rejectedHousingRequests");
+       acceptedHamperRef = mRootRef.child("AcceptedHamperRequests");
+        acceptedhousingRef = mRootRef.child("AcceptedHousingRequests");
+
         foodHamperRef.keepSynced(true);
         announcementRef = mRootRef.child("Announcements");
 
-        mRecyclerView = (RecyclerView) findViewById(R.id.announcement_recycler);
-        mOptionsRecyclerView = (RecyclerView) findViewById(R.id.service_recycler);
 
+        mRecyclerView = (RecyclerView) findViewById(R.id.announcement_recycler);
+        servicesRecyclerView = (RecyclerView) findViewById(R.id.service_recycler);
+       requestsRecyclerView = (RecyclerView) findViewById(R.id.requests_recycler);
 
         layoutManager = new LinearLayoutManager(context);
         mRecyclerView.setLayoutManager(layoutManager);
 
-        optionslayoutManager = new LinearLayoutManager(context);
-        mOptionsRecyclerView.setLayoutManager(optionslayoutManager);
+        servicesLayoutManager= new LinearLayoutManager(context);
+       servicesRecyclerView.setLayoutManager(servicesLayoutManager);
+
+        requestsLayoutManager = new LinearLayoutManager(context);
+       requestsRecyclerView.setLayoutManager( requestsLayoutManager);
+
         RecyclerViewAdapter.RecyclerViewClickListener listener = (View view, int position) -> {
 
             // Pass position 0 for Food packages
@@ -169,10 +191,11 @@ public class MainActivity extends AppCompatActivity {
         recyclerViewAdapter = new RecyclerViewAdapter(listener, getStrings());
         //bookAdapter=new DiscoverAdapter(books);
 
-        mOptionsRecyclerView.setAdapter(recyclerViewAdapter);
+        servicesRecyclerView.setAdapter(recyclerViewAdapter);
 
         getAnnouncements();
-
+        getHousingRequests();
+        getHamperRequests();
         //TODO call next line after checking if user is a hamper delivery volunteer
         getHamperRequests();
         FloatingActionButton fab = findViewById(R.id.fab);
@@ -184,6 +207,153 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
+    private void getHousingRequests() {
+        FirebaseRecyclerOptions<HousingRequest> options =
+                new FirebaseRecyclerOptions.Builder<HousingRequest>()
+                        .setQuery(housingRef, HousingRequest.class)
+                        .build();
+
+        housingAdapter = new FirebaseRecyclerAdapter<HousingRequest,HousingViewholder>(options) {
+
+            @Override
+            protected void onBindViewHolder(HousingViewholder holder, int position,HousingRequest model) {
+
+                holder.name.setText( String.valueOf(model.getName()));
+                holder.location.setText( String.valueOf(model.getLocation()));
+                holder.children.setText( String.valueOf(model.getChildren()));
+                holder.emergencyNumber.setText( String.valueOf(model.getEmergencyContact()));
+
+                holder.phoneNumber.setText( String.valueOf(model.getPhoneNumber()));
+
+
+                holder.itemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                    }
+                });
+
+                holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View v) {
+
+                        String contentId= hamperAdapter.getRef(position).getKey();
+
+                        return true;
+                    }
+                });
+
+            }
+            @Override
+            public HousingViewholder onCreateViewHolder(ViewGroup parent, int viewType) {
+                View view = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.housing_layout, parent, false);
+                final HousingViewholder vh = new HousingViewholder(view);
+                context = parent.getContext();
+
+                vh.setOnClickListener(new HousingViewholder.ClickListener() {
+                    @Override
+                    public void onItemClick(View view, int position) {
+
+
+
+                    }
+                    @Override
+                    public void onItemLongClick(View view, int position) {
+
+
+                        //    Toast.makeText(getActivity(), "Item long clicked at " + position, Toast.LENGTH_SHORT).show();
+                    }
+
+
+
+                });
+                return vh;
+            }
+
+
+
+
+
+        };
+/*
+        mAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+            @Override
+            public void onItemRangeInserted(int positionStart, int itemCount) {
+                super.onItemRangeInserted(positionStart, itemCount);
+                int friendlyMessageCount = mAdapter.getItemCount();
+                int lastVisiblePosition = layoutManager.findLastCompletelyVisibleItemPosition();
+                // If the recycler view is initially being loaded or the
+                // user is at the bottom of the list, scroll to the bottom
+                // of the list to show the newly added message.
+                if (lastVisiblePosition == -1 ||
+                        (positionStart >= (friendlyMessageCount - 1) &&
+                                lastVisiblePosition == (positionStart - 1))) {
+                    layoutManager.scrollToPosition(positionStart);
+                }
+            }
+        });
+*/
+        //  mAdapter.startListening();
+        // mRecyclerView.setLayoutManager(layoutManager);
+        requestsRecyclerView.setAdapter(mAdapter);
+        mAdapter.startListening();
+
+    }
+
+    public static class HousingViewholder extends RecyclerView.ViewHolder {
+
+
+        public TextView name,id,location,children,phoneNumber,emergencyNumber;
+
+
+        public HousingViewholder(View v) {
+            super(v);
+
+            name=(TextView) v.findViewById(R.id.beneficiary_name);
+            id=(TextView) v.findViewById(R.id.title);
+            location=(TextView) v.findViewById(R.id.location);
+             phoneNumber=(TextView) v.findViewById(R.id.title);
+            children=(TextView) v.findViewById(R.id.infants);
+            emergencyNumber=(TextView) v.findViewById(R.id.beneficiaries_number);
+
+
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mClickListener.onItemClick(v, getAdapterPosition());
+
+                }
+            });
+            itemView.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    mClickListener.onItemLongClick(v, getAdapterPosition());
+                    return true;
+                }
+            });
+
+        }
+
+
+        private HousingViewholder.ClickListener mClickListener;
+
+        //Interface to send callbacks...
+        public interface ClickListener {
+            public void onItemClick(View view, int position);
+
+            public void onItemLongClick(View view, int position);
+        }
+
+        public void setOnClickListener(HousingViewholder.ClickListener clickListener) {
+            mClickListener = clickListener;
+        }
+
+
+    }
+
 
     private void getAnnouncements() {
 
@@ -332,6 +502,8 @@ public class MainActivity extends AppCompatActivity {
 
 
 public void getHamperRequests(){
+
+
     FirebaseRecyclerOptions<HamperRequest> options =
             new FirebaseRecyclerOptions.Builder<HamperRequest>()
                     .setQuery(foodHamperRef,HamperRequest.class)
@@ -420,7 +592,7 @@ public void getHamperRequests(){
 */
     //  mAdapter.startListening();
     // mRecyclerView.setLayoutManager(layoutManager);
-        mRecyclerView.setAdapter(mAdapter);
+        requestsRecyclerView.setAdapter(mAdapter);
         mAdapter.startListening();
 }
 
@@ -481,8 +653,101 @@ public void getHamperRequests(){
 
     }
 
+    private ItemTouchHelper.Callback createHelperCallback() {
+
+        ItemTouchHelper.SimpleCallback simpleItemTouchCallback = new ItemTouchHelper.SimpleCallback(0,
+                ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+
+            //not used, as the first parameter above is 0
+            @Override
+            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder,
+                                  RecyclerView.ViewHolder target) {
+
+                swipedPosition = viewHolder.getAdapterPosition();
+                //get object key
 
 
+                return true;
+            }
+
+            @Override
+            public void onSwiped(final RecyclerView.ViewHolder viewHolder, int swipeDir) {
+
+                 //TODO  depending on what kind of volunteer is logged on  pick the right references
+
+                String requestId = mAdapter.getRef(swipedPosition).getKey();
+
+                HamperRequest hamperRequest = hamperAdapter.getItem(swipedPosition);
+                DatabaseReference deleteEntryRef = foodHamperRef.child(requestId);
+
+
+                //
+
+                if (swipeDir == ItemTouchHelper.RIGHT) {
+                    //whatever code you want the swipe to perform
+
+
+                  // rejectHamperRequest();
+
+
+                }
+                if (swipeDir == ItemTouchHelper.LEFT) {
+                    //whatever code you want the swipe to perform
+                    //store object in attended node with the same key
+
+
+                }}
+            };
+        return simpleItemTouchCallback;
+        }
+
+        private void acceptHamperRequest(DatabaseReference deleteEntryRef,String requestId,HamperRequest hamperRequest){
+
+            //store object in reject node with the same key
+            acceptedHamperRef.child(requestId).setValue(hamperRequest).addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    //TODO toast to completion
+                    hamperAdapter.getRef(swipedPosition).removeValue(new DatabaseReference.CompletionListener() {
+                        @Override
+                        public void onComplete(@Nullable DatabaseError databaseError, @NonNull DatabaseReference databaseReference) {
+                            deleteEntryRef.removeValue(new DatabaseReference.CompletionListener() {
+                                @Override
+                                public void onComplete(@Nullable DatabaseError databaseError, @NonNull DatabaseReference databaseReference) {
+                                    //TODO toast to completion
+                                }
+                            });
+
+                        }
+                    });
+                }
+            });
+//
+        }
+        private void rejectHamperRequest(DatabaseReference deleteEntryRef,String requestId,HamperRequest hamperRequest){
+
+
+            rejectedHamperRef.child(requestId).setValue(hamperRequest).addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    //TODO toast to completion
+                    hamperAdapter.getRef(swipedPosition).removeValue(new DatabaseReference.CompletionListener() {
+                        @Override
+                        public void onComplete(@Nullable DatabaseError databaseError, @NonNull DatabaseReference databaseReference) {
+                            deleteEntryRef.removeValue(new DatabaseReference.CompletionListener() {
+                                @Override
+                                public void onComplete(@Nullable DatabaseError databaseError, @NonNull DatabaseReference databaseReference) {
+                                    //TODO toast to completion
+                                }
+                            });
+                        }
+                    });
+                }
+            });
+}
+
+        private void acceptHousingRequest(DatabaseReference deleteEntryRef,String requestId,HousingRequest housingRequest){}
+    private void rejectHousingRequest(DatabaseReference deleteEntryRef,String requestId,HousingRequest housingRequest){}
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
