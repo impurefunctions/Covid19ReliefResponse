@@ -4,4 +4,8 @@
     <string name="announcement">Announcements</string>
     <string name="beneficiary_number">Number of people</string>
     <string name="write_here">Kwala karabo fa</string>
+
+    <string name="facebook_application_id" translatable="false">1375215865996986</string>
+
+    <string name="facebook_login_protocol_scheme" translatable="false">fb1375215865996986</string>
 </resources>
