@@ -11,7 +11,7 @@
     <color name="colorBlack">#424242</color>
     <color name="colorGrey">#BDBDBD</color>
     <color name="colorLiteBlue">#73C8A9</color>
-    <color name="colorDark">#373B44</color>
+    <color name="colorDark">#DF363A42</color>
     <color name="colorSeaBliitz">#93EDC7</color>
-
+    <color name="colorDarkPrev">#373B44</color>
 </resources>

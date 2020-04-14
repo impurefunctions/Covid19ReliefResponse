@@ -11,8 +11,11 @@ import android.net.Uri;
         import android.os.Bundle;
         import android.text.TextUtils;
         import android.util.Log;
-        import android.view.View;
-        import android.widget.Button;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
         import android.widget.CheckBox;
         import android.widget.EditText;
         import android.widget.ImageView;
@@ -52,7 +55,8 @@ import android.net.Uri;
         import com.google.firebase.database.DatabaseError;
         import com.google.firebase.database.DatabaseReference;
         import com.google.firebase.database.FirebaseDatabase;
-        import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
         import com.google.firebase.storage.FirebaseStorage;
         import com.google.firebase.storage.StorageReference;
         import com.google.firebase.storage.UploadTask;
@@ -61,6 +65,7 @@ import android.net.Uri;
         import java.util.HashMap;
         import java.util.Map;
 
+import teamwork.covid19reliefresponse.model.Volunteer;
 
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
@@ -71,6 +76,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private FirebaseAuth.AuthStateListener mAuthListener;
     private FirebaseAuth mAuth;
     private  Context context;
+    private DatabaseReference mRootRef;
     private FirebaseAuth firebaseAuth;
     private String TAG = LoginActivity.class.getSimpleName();
     private GoogleSignInClient googleSignInClient;
@@ -93,7 +99,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
         init();
         setClickListeners();
-
+        mRootRef = FirebaseDatabase.getInstance().getReference();
         firebaseAuth = FirebaseAuth.getInstance();
         configureFacebookSignIn();
         configureGoogleSignIn();
@@ -200,17 +206,113 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
     private void updateUI(FirebaseUser firebaseUser) {
         //  String email = firebaseUser.getEmail();
-/*
+
         String displayName = firebaseUser.getDisplayName();
         Intent intent = new Intent(context, SignUp.class);    // launch MainActivity  if exist  // hide google sign in button if not
         //intent.putExtra(Constants.KEY_USER_EMAIL, email);
         intent.putExtra(Constants.KEY_USER_DISPLAY_NAME, displayName);
         startActivity(intent);
         finish();
-        */
+
     }
 
+    private void checkUser(){
+        //TODO LIST
+        //Volunteer lists will be updated by us
+        //put up list with each volunteer email,name, and type of volunteer Housing or food hamper,organization
+        //when volunteer logs in with Gmail check them against volunteer list if they exist ask how they would like to login as just a user or a volunteer
+        //if volunteer is picked remember it with and display option to switch to user
+        //first time login as a volunteer get userid and put it into volunteer object and save it
+        //every other time check if the userid exists in the object if not get it and save it (use it to sign every decision the volunteer makes)
+        //okay that looks like that's  it
 
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        String userEmail = currentUser.getEmail();
+        String uid = currentUser.getUid();
+        DatabaseReference volunteerRef = mRootRef.child("Volunteers");
+        Query volunteerQuery = mRootRef.child("Volunteers").orderByChild("email").equalTo(userEmail);
+        volunteerQuery.keepSynced(true);
+
+
+
+        volunteerQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists())
+                {
+                    for (DataSnapshot ds: dataSnapshot.getChildren())
+                    {
+                        Volunteer volunteer= ds.getValue(Volunteer.class);
+                        if(volunteer.getId().equals(uid)){
+                            //Welcome user back
+                            //send them to mainActivity
+
+                            Intent intent = new Intent(context, MainActivity.class);
+                            intent.putExtra("key",volunteer.getType());// launch MainActivity  if exist  // hide google sign in button if not
+                            startActivity(intent);
+                        }
+                        else if(!(volunteer.getId().equals(uid))){
+                            //possible clerical error
+                            //really i dont know i just dont need a misdiagnosis
+
+
+                        }else if(volunteer.getId()==null){
+
+                            //Volunteer is new give them a tour or something
+                            //put their userid in the object and put it back
+
+                            String key = volunteerQuery.getRef().getKey();
+
+                            volunteer.setId(uid);
+                            volunteerRef.child(key).setValue(volunteer).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+
+                                    //toast to success
+
+                                    LayoutInflater inflater = getLayoutInflater();
+                                    View layout = inflater.inflate(R.layout.custom_toast,
+                                            (ViewGroup) findViewById(R.id.custom_toast_container));
+
+                                    TextView text = (TextView) layout.findViewById(R.id.text);
+                                    text.setText("Welcome"+ currentUser.getDisplayName());
+
+                                    Toast toast = new Toast(context);
+                                    toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+                                    toast.setDuration(Toast.LENGTH_LONG);
+                                    toast.setView(layout);
+                                    toast.show();
+
+
+                                    Intent intent = new Intent(context, MainActivity.class);    // launch MainActivity  if exist  // hide google sign in button if not
+                                    intent.putExtra("key",volunteer.getType());
+                                    startActivity(intent);
+                                }
+                            });
+
+
+                        }
+                    }
+                }else{
+//this just a normal user that logged in with Gmail
+                    Intent intent = new Intent(context, MainActivity.class);
+                    intent.putExtra("key","user");// launch MainActivity  if exist  // hide google sign in button if not
+                    startActivity(intent);
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+
+
+
+
+
+    }
     private void init() {
 
         context = this;
@@ -267,8 +369,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                     FirebaseUser currentUser = firebaseAuth.getCurrentUser();
                     if (currentUser != null) {
                         //  updateUI(currentUser);
-                        Intent intent = new Intent(context, MainActivity.class);    // launch MainActivity  if exist  // hide google sign in button if not
-                        startActivity(intent);
+                     checkUser();
                     }
                 } else {
                     Log.e(TAG, "signInWithCredential : failure", task.getException());
